@@ -13,7 +13,7 @@ const Layout = () => {
   const [translatedValue, setTranslatedValue] = useState<string>("");
   const [sourceLang, setSourceLang] = useState<string>("en");
   const [targetLang, setTargetLang] = useState<string>("fr");
-  const [copyToast, setCopyToast] = useState<boolean>(false);
+  const [copyToast, setCopyToast] = useState<{ original: boolean; translated: boolean }>({ original: false, translated: false });
   const [showSourceDropdown, setShowSourceDropdown] = useState<boolean>(false);
   const [showTargetDropdown, setShowTargetDropdown] = useState<boolean>(false);
 
@@ -34,10 +34,10 @@ const Layout = () => {
     speechSynthesis.speak(utterance);
   };
 
-  const handleCopyText = (text: string) => {
+  const handleCopyText = (text: string, type: 'original' | 'translated') => {
     navigator.clipboard.writeText(text);
-    setCopyToast(true);
-    setTimeout(() => setCopyToast(false), 2000);
+    setCopyToast((prev) => ({ ...prev, [type]: true }));
+    setTimeout(() => setCopyToast((prev) => ({ ...prev, [type]: false })), 2000);
   };
 
   const handleLanguageChange = (lang: string, type: 'source' | 'target') => {
@@ -120,11 +120,11 @@ const Layout = () => {
                     src={copyText}
                     alt="copyText"
                     className="border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90"
-                    onClick={() => handleCopyText(value)}
+                    onClick={() => handleCopyText(value, 'original')}
                   />
-                  {copyToast && (
-                    <div className="absolute top-[-30px] left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2">
-                      Copied
+                  {copyToast.original && (
+                    <div className="absolute top-[-30px] left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white text-xs rounded py-1 px-2">
+                      Copied!
                     </div>
                   )}
                 </div>
@@ -189,11 +189,11 @@ const Layout = () => {
                     src={copyText}
                     alt="copyText"
                     className="border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90"
-                    onClick={() => handleCopyText(translatedValue)}
+                    onClick={() => handleCopyText(translatedValue, 'translated')}
                   />
-                  {copyToast && (
-                    <div className="absolute top-[-30px] left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2">
-                      Copied
+                  {copyToast.translated && (
+                    <div className="absolute top-[-30px] left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white text-xs rounded py-1 px-2">
+                      Copied!
                     </div>
                   )}
                 </div>
