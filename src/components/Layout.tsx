@@ -3,11 +3,66 @@ import arrowDown from "../assets/images/Expand_down.svg";
 import readAloud from "../assets/images/sound_max_fill.svg";
 import copyText from "../assets/images/Copy.svg";
 import translate from "../assets/images/Sort_alfa.svg";
-import translateBtn from "../assets/images/Horizontal_top_left_main.svg"
+import translateBtn from "../assets/images/Horizontal_top_left_main.svg";
 import { useState } from "react";
+import { TranslateResponse } from "../types/type";
+import { fetchTranslation } from "../api/TranslateLanguage";
 
 const Layout = () => {
   const [value, setValue] = useState<string>("Hello, how are you?");
+  const [translatedValue, setTranslatedValue] = useState<string>("");
+  const [sourceLang, setSourceLang] = useState<string>("en");
+  const [targetLang, setTargetLang] = useState<string>("fr");
+  const [copyToast, setCopyToast] = useState<boolean>(false);
+  const [showSourceDropdown, setShowSourceDropdown] = useState<boolean>(false);
+  const [showTargetDropdown, setShowTargetDropdown] = useState<boolean>(false);
+
+  const handleTranslate = async () => {
+    const data = {
+      q: value,
+      source: sourceLang,
+      target: targetLang,
+      format: "text"
+    };
+    const result: TranslateResponse = await fetchTranslation(data);
+    setTranslatedValue(result.translatedText);
+    setSourceLang(result.detectedSourceLanguage);
+  };
+
+  const handleReadAloud = (text: string) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    speechSynthesis.speak(utterance);
+  };
+
+  const handleCopyText = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopyToast(true);
+    setTimeout(() => setCopyToast(false), 2000);
+  };
+
+  const handleLanguageChange = (lang: string, type: 'source' | 'target') => {
+    if (type === 'source') {
+      setSourceLang(lang);
+      setShowSourceDropdown(false);
+    } else {
+      setTargetLang(lang);
+      setShowTargetDropdown(false);
+    }
+  };
+
+  const getLanguageName = (lang: string) => {
+    const languages: { [key: string]: string } = {
+      en: "English",
+      fr: "French",
+      es: "Spanish",
+      de: "German",
+      it: "Italian",
+      pt: "Portuguese",
+      ru: "Russian"
+    };
+    return languages[lang] || lang;
+  };
+
   return (
     <div>
       <div className="hero-img"> </div>
@@ -21,16 +76,24 @@ const Layout = () => {
               <button className="cursor-pointer hover:opacity-90 p-2 rounded-md">
                 Detect Language
               </button>
-              <button className="cursor-pointer hover:opacity-90 bg-[#4d5562] p-2 rounded-md">
+              <button className={`cursor-pointer hover:opacity-90 p-2 rounded-md ${sourceLang === 'en' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('en', 'source')}>
                 English
               </button>
-              <button className="cursor-pointer hover:opacity-90 p-2 rounded-md">
+              <button className={`cursor-pointer hover:opacity-90 p-2 rounded-md ${sourceLang === 'fr' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('fr', 'source')}>
                 French
               </button>
-              <button className="flex gap-2 items-center cursor-pointer hover:opacity-90 p-2">
-                <span>Spanish</span>
+              <button className="flex gap-2 items-center cursor-pointer hover:opacity-90 p-2" onClick={() => setShowSourceDropdown(!showSourceDropdown)}>
+                <span>{getLanguageName(sourceLang)}</span>
                 <img src={arrowDown} alt="arrow-down" />
               </button>
+              {showSourceDropdown && (
+                <div className="absolute bg-[#1e2432cc] text-white rounded-md p-2 mt-2">
+                  <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('de', 'source')}>German</button>
+                  <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('it', 'source')}>Italian</button>
+                  <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('pt', 'source')}>Portuguese</button>
+                  <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('ru', 'source')}>Russian</button>
+                </div>
+              )}
             </div>
             <div className="w-full h-[1px] bg-[#363d4d]"></div>
             <div className="w-full">
@@ -43,21 +106,33 @@ const Layout = () => {
                 onChange={(e) => setValue(e.target.value)}
               ></textarea>
             </div>
-            <p className="w-full text-right">19/500</p>
+            <p className="w-full text-right">{value.length}/500</p>
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <img
                   src={readAloud}
                   alt="read aloud"
                   className="border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90"
+                  onClick={() => handleReadAloud(value)}
                 />
-                <img
-                  src={copyText}
-                  alt="copyText"
-                  className="border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90"
-                />
+                <div className="relative">
+                  <img
+                    src={copyText}
+                    alt="copyText"
+                    className="border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90"
+                    onClick={() => handleCopyText(value)}
+                  />
+                  {copyToast && (
+                    <div className="absolute top-[-30px] left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2">
+                      Copied
+                    </div>
+                  )}
+                </div>
               </div>
-              <button className="flex items-center border-white border-2 py-2 px-4 bg-[#273fa9] rounded-md cursor-pointer hover:opacity-90">
+              <button
+                className="flex items-center border-white border-2 py-2 px-4 bg-[#273fa9] rounded-md cursor-pointer hover:opacity-90"
+                onClick={handleTranslate}
+              >
                 <img src={translate} alt="Translate" />
                 <span>Translate</span>
               </button>
@@ -66,16 +141,24 @@ const Layout = () => {
           <div className="bg-[#1e2432cc] text-white rounded-md p-5 w-full flex flex-col gap-8 border-[#4d5562] border">
             <div className="flex items-center gap-4 justify-between">
               <div className="flex items-center gap-6">
-                <button className="cursor-pointer hover:opacity-90  p-2 rounded-md">
+                <button className={`cursor-pointer hover:opacity-90 p-2 rounded-md ${targetLang === 'en' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('en', 'target')}>
                   English
                 </button>
-                <button className="cursor-pointer hover:opacity-90 p-2 bg-[#4d5562] rounded-md">
+                <button className={`cursor-pointer hover:opacity-90 p-2 rounded-md ${targetLang === 'fr' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('fr', 'target')}>
                   French
                 </button>
-                <button className="flex gap-2 items-center cursor-pointer hover:opacity-90 p-2">
-                  <span>Spanish</span>
+                <button className="flex gap-2 items-center cursor-pointer hover:opacity-90 p-2" onClick={() => setShowTargetDropdown(!showTargetDropdown)}>
+                  <span>{getLanguageName(targetLang)}</span>
                   <img src={arrowDown} alt="arrow-down" />
                 </button>
+                {showTargetDropdown && (
+                  <div className="absolute bg-[#1e2432cc] text-white rounded-md p-2 mt-2">
+                    <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('de', 'target')}>German</button>
+                    <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('it', 'target')}>Italian</button>
+                    <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('pt', 'target')}>Portuguese</button>
+                    <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('ru', 'target')}>Russian</button>
+                  </div>
+                )}
               </div>
               <div className="p-2 border-2 border-[#4d5562] rounded-md cursor-pointer hover:opacity-90">
                 <img src={translateBtn} alt="Translate" />
@@ -88,23 +171,32 @@ const Layout = () => {
                 id="translate"
                 className="bg-transparent w-full border-none outline-none resize-none"
                 rows={7}
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
+                value={translatedValue}
+                readOnly
               ></textarea>
             </div>
-            <p className="w-full text-right">19/500</p>
+            <p className="w-full text-right">{translatedValue.length}/500</p>
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <img
                   src={readAloud}
                   alt="read aloud"
                   className="border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90"
+                  onClick={() => handleReadAloud(translatedValue)}
                 />
-                <img
-                  src={copyText}
-                  alt="copyText"
-                  className="border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90"
-                />
+                <div className="relative">
+                  <img
+                    src={copyText}
+                    alt="copyText"
+                    className="border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90"
+                    onClick={() => handleCopyText(translatedValue)}
+                  />
+                  {copyToast && (
+                    <div className="absolute top-[-30px] left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2">
+                      Copied
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
