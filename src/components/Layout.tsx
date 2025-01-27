@@ -16,6 +16,7 @@ const Layout = () => {
   const [copyToast, setCopyToast] = useState<{ original: boolean; translated: boolean }>({ original: false, translated: false });
   const [showSourceDropdown, setShowSourceDropdown] = useState<boolean>(false);
   const [showTargetDropdown, setShowTargetDropdown] = useState<boolean>(false);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
   const handleTranslate = async () => {
     const data = {
@@ -50,6 +51,11 @@ const Layout = () => {
     }
   };
 
+  const handleDropdownPosition = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setDropdownPosition({ top: rect.bottom, left: rect.left });
+  };
+
   const getLanguageName = (lang: string) => {
     const languages: { [key: string]: string } = {
       en: "English",
@@ -82,16 +88,16 @@ const Layout = () => {
               <button className={`cursor-pointer hover:opacity-90 p-2 rounded-md ${sourceLang === 'fr' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('fr', 'source')}>
                 French
               </button>
-              <button className="flex gap-2 items-center cursor-pointer hover:opacity-90 p-2" onClick={() => setShowSourceDropdown(!showSourceDropdown)}>
+              <button className="flex gap-2 items-center cursor-pointer hover:opacity-90 p-2" onClick={(e) => { setShowSourceDropdown(!showSourceDropdown); handleDropdownPosition(e); }}>
                 <span>{getLanguageName(sourceLang)}</span>
                 <img src={arrowDown} alt="arrow-down" />
               </button>
               {showSourceDropdown && (
-                <div className="absolute bg-[#1e2432cc] text-white rounded-md p-2 mt-2">
-                  <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('de', 'source')}>German</button>
-                  <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('it', 'source')}>Italian</button>
-                  <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('pt', 'source')}>Portuguese</button>
-                  <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('ru', 'source')}>Russian</button>
+                <div className="absolute bg-[#1e2432cc] text-white rounded-md p-2 mt-2" style={{ top: dropdownPosition.top, left: dropdownPosition.left }}>
+                  <button className={`block w-full text-left p-2 hover:bg-[#4d5562] ${sourceLang === 'de' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('de', 'source')}>German</button>
+                  <button className={`block w-full text-left p-2 hover:bg-[#4d5562] ${sourceLang === 'it' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('it', 'source')}>Italian</button>
+                  <button className={`block w-full text-left p-2 hover:bg-[#4d5562] ${sourceLang === 'pt' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('pt', 'source')}>Portuguese</button>
+                  <button className={`block w-full text-left p-2 hover:bg-[#4d5562] ${sourceLang === 'ru' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('ru', 'source')}>Russian</button>
                 </div>
               )}
             </div>
@@ -139,7 +145,7 @@ const Layout = () => {
             </div>
           </div>
           <div className="bg-[#1e2432cc] text-white rounded-md p-5 w-full flex flex-col gap-8 border-[#4d5562] border">
-            <div className="flex items-center gap-4 justify-between">
+            <div className="flex items-center gap-3 justify-between flex-wrap">
               <div className="flex items-center gap-6">
                 <button className={`cursor-pointer hover:opacity-90 p-2 rounded-md ${targetLang === 'en' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('en', 'target')}>
                   English
@@ -147,16 +153,16 @@ const Layout = () => {
                 <button className={`cursor-pointer hover:opacity-90 p-2 rounded-md ${targetLang === 'fr' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('fr', 'target')}>
                   French
                 </button>
-                <button className="flex gap-2 items-center cursor-pointer hover:opacity-90 p-2" onClick={() => setShowTargetDropdown(!showTargetDropdown)}>
+                <button className="flex items-center cursor-pointer hover:opacity-90 p-2" onClick={(e) => { setShowTargetDropdown(!showTargetDropdown); handleDropdownPosition(e); }}>
                   <span>{getLanguageName(targetLang)}</span>
                   <img src={arrowDown} alt="arrow-down" />
                 </button>
                 {showTargetDropdown && (
-                  <div className="absolute bg-[#1e2432cc] text-white rounded-md p-2 mt-2">
-                    <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('de', 'target')}>German</button>
-                    <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('it', 'target')}>Italian</button>
-                    <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('pt', 'target')}>Portuguese</button>
-                    <button className="block w-full text-left p-2 hover:bg-[#4d5562]" onClick={() => handleLanguageChange('ru', 'target')}>Russian</button>
+                  <div className="absolute bg-[#1e2432cc] text-white rounded-md p-2 mt-2" style={{ top: dropdownPosition.top, left: dropdownPosition.left }}>
+                    <button className={`block w-full text-left p-2 hover:bg-[#4d5562] ${targetLang === 'de' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('de', 'target')}>German</button>
+                    <button className={`block w-full text-left p-2 hover:bg-[#4d5562] ${targetLang === 'it' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('it', 'target')}>Italian</button>
+                    <button className={`block w-full text-left p-2 hover:bg-[#4d5562] ${targetLang === 'pt' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('pt', 'target')}>Portuguese</button>
+                    <button className={`block w-full text-left p-2 hover:bg-[#4d5562] ${targetLang === 'ru' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('ru', 'target')}>Russian</button>
                   </div>
                 )}
               </div>
