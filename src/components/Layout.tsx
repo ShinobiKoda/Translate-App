@@ -19,19 +19,14 @@ const Layout = () => {
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
   const handleTranslate = async () => {
-    const data = {
-      q: value,
-      source: sourceLang,
-      target: targetLang,
-      format: "text"
-    };
-    const result: TranslateResponse = await fetchTranslation(data);
+    const result: TranslateResponse = await fetchTranslation(value, sourceLang, targetLang);
     setTranslatedValue(result.translatedText);
     setSourceLang(result.detectedSourceLanguage);
   };
 
-  const handleReadAloud = (text: string) => {
+  const handleReadAloud = (text: string, lang: string) => {
     const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
     speechSynthesis.speak(utterance);
   };
 
@@ -41,13 +36,15 @@ const Layout = () => {
     setTimeout(() => setCopyToast((prev) => ({ ...prev, [type]: false })), 2000);
   };
 
-  const handleLanguageChange = (lang: string, type: 'source' | 'target') => {
+  const handleLanguageChange = async (lang: string, type: 'source' | 'target') => {
     if (type === 'source') {
       setSourceLang(lang);
       setShowSourceDropdown(false);
     } else {
       setTargetLang(lang);
       setShowTargetDropdown(false);
+      const result: TranslateResponse = await fetchTranslation(value, sourceLang, lang);
+      setTranslatedValue(result.translatedText);
     }
   };
 
@@ -119,7 +116,7 @@ const Layout = () => {
                   src={readAloud}
                   alt="read aloud"
                   className="border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90"
-                  onClick={() => handleReadAloud(value)}
+                  onClick={() => handleReadAloud(value, sourceLang)}
                 />
                 <div className="relative">
                   <img
@@ -188,7 +185,7 @@ const Layout = () => {
                   src={readAloud}
                   alt="read aloud"
                   className="border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90"
-                  onClick={() => handleReadAloud(translatedValue)}
+                  onClick={() => handleReadAloud(translatedValue, targetLang)}
                 />
                 <div className="relative">
                   <img
