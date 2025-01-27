@@ -11,11 +11,11 @@ const Layout = () => {
   return (
     <div>
       <div className="hero-img"> </div>
-      <div className="flex flex-col gap-8 items-center justify-center w-full">
+      <div className="flex flex-col gap-8 items-center justify-center w-full mt-40">
         <div>
           <img src={logo} alt="Logo Image" />
         </div>
-        <div className="w-full px-5 max-w-[700px] flex flex-col gap-10">
+        <div className="w-full px-5 max-w-[1440px] flex flex-col gap-10 lg:flex lg:flex-row lg:justify-between">
           <div className="bg-[#1e2432cc] text-white rounded-md p-5 w-full flex flex-col gap-8 border-[#4d5562] border">
             <div className="flex items-center gap-4 flex-wrap">
               <button className="cursor-pointer hover:opacity-90 p-2 rounded-md">
