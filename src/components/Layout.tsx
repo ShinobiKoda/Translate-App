@@ -19,8 +19,18 @@ const Layout = () => {
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
   const handleTranslate = async () => {
+    if (value.trim() === "") {
+      setTranslatedValue("Enter a text for translation");
+      return;
+    }
     const result: TranslateResponse = await fetchTranslation(value, sourceLang, targetLang);
     setTranslatedValue(result.translatedText);
+    setSourceLang(result.detectedSourceLanguage);
+  };
+
+  const handleReverseTranslate = async () => {
+    const result: TranslateResponse = await fetchTranslation(translatedValue, targetLang, sourceLang);
+    setValue(result.translatedText);
     setSourceLang(result.detectedSourceLanguage);
   };
 
@@ -31,6 +41,7 @@ const Layout = () => {
   };
 
   const handleCopyText = (text: string, type: 'original' | 'translated') => {
+    if (text.trim() === "") return;
     navigator.clipboard.writeText(text);
     setCopyToast((prev) => ({ ...prev, [type]: true }));
     setTimeout(() => setCopyToast((prev) => ({ ...prev, [type]: false })), 2000);
@@ -43,8 +54,10 @@ const Layout = () => {
     } else {
       setTargetLang(lang);
       setShowTargetDropdown(false);
-      const result: TranslateResponse = await fetchTranslation(value, sourceLang, lang);
-      setTranslatedValue(result.translatedText);
+      if (value.trim() !== "") {
+        const result: TranslateResponse = await fetchTranslation(value, sourceLang, lang);
+        setTranslatedValue(result.translatedText);
+      }
     }
   };
 
@@ -122,7 +135,7 @@ const Layout = () => {
                   <img
                     src={copyText}
                     alt="copyText"
-                    className="border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90"
+                    className={`border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90 ${value.trim() === "" ? "opacity-50 cursor-not-allowed" : ""}`}
                     onClick={() => handleCopyText(value, 'original')}
                   />
                   {copyToast.original && (
@@ -163,7 +176,7 @@ const Layout = () => {
                   </div>
                 )}
               </div>
-              <div className="p-2 border-2 border-[#4d5562] rounded-md cursor-pointer hover:opacity-90">
+              <div className="p-2 border-2 border-[#4d5562] rounded-md cursor-pointer hover:opacity-90" onClick={handleReverseTranslate}>
                 <img src={translateBtn} alt="Translate" />
               </div>
             </div>
@@ -191,7 +204,7 @@ const Layout = () => {
                   <img
                     src={copyText}
                     alt="copyText"
-                    className="border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90"
+                    className={`border-2 p-1 rounded-md border-[#4d5562] cursor-pointer hover:opacity-90 ${translatedValue.trim() === "" ? "opacity-50 cursor-not-allowed" : ""}`}
                     onClick={() => handleCopyText(translatedValue, 'translated')}
                   />
                   {copyToast.translated && (
