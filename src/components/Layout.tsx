@@ -154,7 +154,7 @@ const Layout = () => {
               </button>
             </div>
           </div>
-          <div className="bg-[#1e2432cc] text-white rounded-md p-5 w-full flex flex-col gap-8 border-[#4d5562] border">
+          <div className="bg-[#1e2432] text-white rounded-md p-5 w-full flex flex-col gap-8 border-[#4d5562] border">
             <div className="flex items-center gap-3 justify-between flex-wrap">
               <div className="flex items-center gap-6">
                 <button className={`cursor-pointer hover:opacity-90 p-2 rounded-md ${targetLang === 'en' ? 'bg-[#4d5562]' : ''}`} onClick={() => handleLanguageChange('en', 'target')}>
