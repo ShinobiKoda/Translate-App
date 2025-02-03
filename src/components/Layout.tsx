@@ -70,6 +70,17 @@ const Layout = () => {
     setDropdownVisible(null);
   };
 
+  const handleLanguageChange = async (lang: string, type: 'source' | 'target') => {
+    if (type === 'source') {
+      setSourceLang(lang);
+    } else {
+      setTargetLang(lang);
+    }
+    // Ensure the language state is updated before calling handleTranslate
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await handleTranslate();
+  };
+
   return (
     <div onClick={handleClickOutside}>
       <div className="hero-img"> </div>
@@ -82,7 +93,7 @@ const Layout = () => {
             <LanguageSelector
               type="source"
               selectedLang={sourceLang}
-              onLanguageChange={(lang) => setSourceLang(lang)}
+              onLanguageChange={(lang) => handleLanguageChange(lang, 'source')}
               dropdownVisible={dropdownVisible === 'source'}
               onDropdownToggle={() => handleDropdownVisibility('source')}
             />
@@ -104,7 +115,7 @@ const Layout = () => {
             <LanguageSelector
               type="target"
               selectedLang={targetLang}
-              onLanguageChange={(lang) => setTargetLang(lang)}
+              onLanguageChange={(lang) => handleLanguageChange(lang, 'target')}
               dropdownVisible={dropdownVisible === 'target'}
               onDropdownToggle={() => handleDropdownVisibility('target')}
             />
