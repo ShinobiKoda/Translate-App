@@ -20,7 +20,7 @@ const languages = [
 const initialLanguages = languages.slice(0, 2);
 const dropdownLanguages = languages.slice(2);
 
-const LanguageSelector: React.FC<LanguageSelectorProps> = ({ type, selectedLang, onLanguageChange }) => {
+const LanguageSelector: React.FC<LanguageSelectorProps> = ({ selectedLang, onLanguageChange }) => {
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
@@ -29,13 +29,18 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ type, selectedLang,
     setDropdownPosition({ top: rect.bottom, left: rect.left });
   };
 
+  const handleLanguageChange = (lang: string) => {
+    onLanguageChange(lang);
+    setShowDropdown(false); // Close the dropdown
+  };
+
   return (
     <div className="flex items-center gap-4 flex-wrap">
       {initialLanguages.map((lang) => (
         <button
           key={lang.code}
           className={`cursor-pointer hover:opacity-90 p-2 rounded-md ${selectedLang === lang.code ? 'bg-[#4d5562]' : ''}`}
-          onClick={() => onLanguageChange(lang.code)}
+          onClick={() => handleLanguageChange(lang.code)}
         >
           {lang.name}
         </button>
@@ -50,7 +55,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ type, selectedLang,
             <button
               key={lang.code}
               className={`block w-full text-left p-2 hover:bg-[#4d5562] ${selectedLang === lang.code ? 'bg-[#4d5562]' : ''}`}
-              onClick={() => onLanguageChange(lang.code)}
+              onClick={() => handleLanguageChange(lang.code)}
             >
               {lang.name}
             </button>
