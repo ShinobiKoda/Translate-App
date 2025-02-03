@@ -14,6 +14,7 @@ const Layout = () => {
     original: boolean;
     translated: boolean;
   }>({ original: false, translated: false });
+  const [dropdownVisible, setDropdownVisible] = useState<string | null>(null);
 
   const handleTranslate = async () => {
     if (value.trim() === "") {
@@ -61,8 +62,16 @@ const Layout = () => {
     speechSynthesis.speak(utterance);
   };
 
+  const handleDropdownVisibility = (type: 'source' | 'target') => {
+    setDropdownVisible((prev) => (prev === type ? null : type));
+  };
+
+  const handleClickOutside = () => {
+    setDropdownVisible(null);
+  };
+
   return (
-    <div>
+    <div onClick={handleClickOutside}>
       <div className="hero-img"> </div>
       <div className="flex flex-col gap-8 items-center justify-center w-full mt-40">
         <div>
@@ -74,6 +83,8 @@ const Layout = () => {
               type="source"
               selectedLang={sourceLang}
               onLanguageChange={(lang) => setSourceLang(lang)}
+              dropdownVisible={dropdownVisible === 'source'}
+              onDropdownToggle={() => handleDropdownVisibility('source')}
             />
             <div className="w-full h-[1px] bg-[#363d4d]"></div>
 
@@ -94,6 +105,8 @@ const Layout = () => {
               type="target"
               selectedLang={targetLang}
               onLanguageChange={(lang) => setTargetLang(lang)}
+              dropdownVisible={dropdownVisible === 'target'}
+              onDropdownToggle={() => handleDropdownVisibility('target')}
             />
             <div className="w-full h-[1px] bg-[#363d4d]"></div>
             <TextArea
